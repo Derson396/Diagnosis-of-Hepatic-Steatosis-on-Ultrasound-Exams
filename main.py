@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import filedialog, ttk
 from PIL import ImageTk, Image
 import numpy as np
+from actions.generate_roi import process_rois
 from actions.load_image import load_dataset, load_image
 from actions.crop_roi import crop_roi
 from actions.show_histogram import show_histogram
@@ -24,8 +25,11 @@ class ImageApp:
         # Variáveis para armazenar a imagem atual e a ROI
         self.current_image_pil = None
         self.roi_coords = None
+        self.roiRim_coords = None
+        self.roiFigado_coords = None
         self.rect = None
         self.roi_app = None
+        self.roi_count = 0  # Contador de ROIs
 
         # Comboboxes para selecionar paciente e imagem
         self.paciente_var = tk.StringVar()
@@ -64,23 +68,32 @@ class ImageApp:
         )
         btn_crop_roi.grid(row=2, column=2)
 
-        btn_stop_crop_roi = ttk.Button(
+        """         btn_stop_crop_roi = ttk.Button(
             root, text="Parar de Recortar ROI", command=self.stop_crop_roi
         )
-        btn_stop_crop_roi.grid(row=2, column=3)
+        btn_stop_crop_roi.grid(row=2, column=3) """
 
-        btn_show_histogram = ttk.Button(
+        btn_generate__roi = ttk.Button(
+            root, text="Gerar ROI", command=self.start_generate_two_rois
+        )
+        btn_generate__roi.grid(row=2, column=3)
+
+        """     btn_show_histogram = ttk.Button(
             root, text="Exibir Histograma", command=self.show_histogram
         )
-        btn_show_histogram.grid(row=2, column=4)
+        btn_show_histogram.grid(row=2, column=5)
 
         btn_compute_glcm = ttk.Button(
             root, text="Calcular GLCM", command=self.compute_glcm
         )
-        btn_compute_glcm.grid(row=2, column=5)
+        btn_compute_glcm.grid(row=2, column=6) """
 
         btn_exit = ttk.Button(root, text="Sair", command=root.quit)
-        btn_exit.grid(row=2, column=6)
+        btn_exit.grid(row=2, column=7)
+
+        self.selection_status_label = tk.Label(root, font=("Arial", 12))
+        self.selection_status_label.grid(row=3, column=0, columnspan=4, pady=10)
+        self.selection_status_label.grid_remove()  # Esconder inicialmente
 
     def load_imagem_arquivo(self):
         file_path = filedialog.askopenfilename(
@@ -137,7 +150,7 @@ class ImageApp:
         # Desenhar o quadrado no canvas
         if self.rect:
             self.canvas.delete(self.rect)
-        self.rect = self.canvas.create_rectangle(x1, y1, x2, y2, outline="red")
+        self.rect = self.canvas.create_rectangle(x1, y1, x2, y2, outline="green")
         # Recortar e exibir a ROI automaticamente
         self.crop_and_show_roi()
 
@@ -156,6 +169,7 @@ class ImageApp:
         if self.roi_app:
             self.roi_app.root.destroy()
         self.roi_app = RoiApp(new_window, roi, self.image_idx, self.paciente)
+        self.stop_crop_roi()
 
     def show_histogram(self):
         """Exibir o histograma da imagem ou ROI atual."""
@@ -185,6 +199,89 @@ class ImageApp:
                 messagebox.showerror("Erro", str(e))
         else:
             messagebox.showerror("Erro", "Nenhuma ROI carregada para calcular GLCM.")
+    
+    def start_generate_two_rois(self):
+        """Inicia o processo para selecionar duas ROIs e atualiza o status."""
+        self.roi_coords = []  # Reiniciar coordenadas
+        self.roiRim_coords = None
+        self.roiFigado_coords = None
+        self.rects = []  # Reiniciar os retângulos desenhados
+        self.roi_count = 0  # Reiniciar contador de ROIs
+        self.canvas.bind("<ButtonPress-1>", self.on_button_press_two_rois)
+        
+        # Atualizar o status para informar que o primeiro ROI é do RIM
+        self.selection_status_label.config(text="Selecione a região do RIM.")
+        self.selection_status_label.grid()
+
+    def on_button_press_two_rois(self, event):
+        """Captura duas ROIs de 28x28 ao clicar com o mouse."""
+        if self.roi_count < 2:
+            # Coordenadas do centro (onde o mouse foi clicado)
+            center_x, center_y = event.x, event.y
+
+            # Calcular os cantos do quadrado 28x28
+            x1 = center_x - 14
+            y1 = center_y - 14
+            x2 = center_x + 14
+            y2 = center_y + 14
+            if self.roi_count == 0:
+                self.roiRim_coords = [(x1, y1), (x2, y2)]
+
+            # Desenhar o quadrado no canvas
+            rect = self.canvas.create_rectangle(x1, y1, x2, y2, outline="green")
+            self.rects.append(rect)
+
+            # Incrementar o contador de ROIs e atualizar status
+            self.roi_count += 1
+
+            if self.roi_count == 1:
+                # Após a primeira seleção (RIM), pedir a segunda (FÍGADO)
+                self.selection_status_label.config(text="Agora selecione a região do FÍGADO.")
+                self.roiFigado_coords = [(x1, y1), (x2, y2)]
+            elif self.roi_count == 2:
+                # Quando as duas ROIs forem selecionadas, chamar o processamento
+                self.selection_status_label.config(text="Processando as ROIs...")
+                self.process_two_rois()
+
+    def process_two_rois(self):
+        """Processa as duas ROIs selecionadas."""
+        canvas_width = self.canvas.winfo_width()
+        canvas_height = self.canvas.winfo_height()
+        # Exemplo de processamento: calcular a sobreposição ou diferenças
+        x1_R, y1_R = self.roiRim_coords[0]
+        x2_R, y2_R = self.roiRim_coords[1]
+
+        roiRim = crop_roi(
+            self.current_image_pil, x1_R, y1_R, x2_R, y2_R, canvas_width, canvas_height
+        )
+
+        x1_F, y1_F = self.roiFigado_coords[0]
+        x2_F, y2_F = self.roiFigado_coords[1]
+
+        roiFigado = crop_roi(
+            self.current_image_pil, x1_F, y1_F, x2_F, y2_F, canvas_width, canvas_height
+        )
+
+        output_path, hi = process_rois(roiRim, roiFigado, f"Rois/ROI_{self.paciente}_{self.image_idx}.png")
+            # Mostrar mensagem com o HI e abrir a imagem normalizada do fígado
+        messagebox.showinfo(
+                "Índice Hepatorenal Calculado",
+                f"Índice Hepatorenal (HI): {hi:.2f}\nImagem do fígado normalizada salva em: {output_path}"
+            )
+
+        if self.roi_app:
+            self.roi_app.root.destroy()
+        normalized_image = Image.open(output_path)
+        new_window = tk.Toplevel(self.root)
+        self.roi_app = RoiApp(new_window, normalized_image, self.image_idx, self.paciente)
+        self.selection_status_label.grid_remove()
+
+        # Atualizar o status de que as ROIs foram processadas
+        self.selection_status_label.config(text="Seleção de ROIs finalizada. Processo concluído!")
+
+        # deletar os retângulos
+        for rect in self.rects:
+            self.canvas.delete(rect)
 
 
 # Iniciar a aplicação
