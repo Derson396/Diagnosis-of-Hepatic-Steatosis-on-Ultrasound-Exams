@@ -8,13 +8,23 @@ from actions.compute_glcm import compute_glcm, show_glcm_heatmap
 from tkinter import messagebox
 
 class RoiApp:
-    def __init__(self, root,imagem):
+    def __init__(self, root,imagem,imagem_var,paciente_var):
         self.root = root
-        self.root.title("Visualizador de Imagens e ROIs")
+        self.root.title("Visualizador de ROIs")
         # Configurar a interface
         self.canvas = tk.Canvas(root, width=600, height=600, bg="gray")
         self.canvas.grid(row=0, column=0, columnspan=4)
+        
         self.current_image_pil = imagem
+        self.image_var = imagem_var
+        self.pacient_var = paciente_var
+        
+        btn_save_kidney = ttk.Button(root, text="Salvar como Rim", command=self.save_kidney)
+        btn_save_kidney.grid(row=2, column=0)
+        
+        btn_save_liver = ttk.Button(root, text="Salvar como Figado", command=self.save_liver)
+        btn_save_liver.grid(row=2, column=1)
+        
         btn_show_histogram = ttk.Button(root, text="Exibir Histograma", command=self.show_histogram)
         btn_show_histogram.grid(row=2, column=2)
 
@@ -54,3 +64,49 @@ class RoiApp:
                 messagebox.showerror("Erro", str(e))
         else:
             messagebox.showerror("Erro", "Nenhuma ROI carregada para calcular GLCM.")
+
+    def save_kidney(self):
+        try:
+            pacient_int = int(self.pacient_var)  # Converte para inteiro para comparação
+            image_int = int(self.image_var)  # Converte para inteiro, se necessário
+
+            # Cria o diretório se não existir
+            save_directory = "Rois/Figado"
+            os.makedirs(save_directory, exist_ok=True)  # Cria o diretório se não existir
+
+            # Define o caminho do arquivo
+            if 0 < pacient_int < 17:
+                file_path = os.path.join(save_directory, f"SaudavelPacient{pacient_int}Imagem{image_int}.png")
+            else:
+                file_path = os.path.join(save_directory, f"DoentePacient{pacient_int}Imagem{image_int}.png")
+
+            # Salva a imagem
+            new_size = (600, 600)  # Define o novo tamanho
+            resized_image = self.current_image_pil.resize(new_size)
+            resized_image.save(file_path)
+        except Exception as e:
+            print(f"Erro ao salvar a imagem: {e}")
+            
+    def save_liver(self):
+        try:
+            print
+            pacient_int = int(self.pacient_var)  # Converte para inteiro para comparação
+            image_int = int(self.image_var)  # Converte para inteiro, se necessário
+
+            # Cria o diretório se não existir
+            save_directory = "Rois/Rim"
+            os.makedirs(save_directory, exist_ok=True)  # Cria o diretório se não existir
+
+            # Define o caminho do arquivo
+            if 0 < pacient_int < 17:
+                file_path = os.path.join(save_directory, f"SaudavelPacient{pacient_int}Imagem{image_int}.png")
+            else:
+                file_path = os.path.join(save_directory, f"DoentePacient{pacient_int}Imagem{image_int}.png")
+
+            # Salva a imagem
+            new_size = (600, 600)  # Define o novo tamanho
+            resized_image = self.current_image_pil.resize(new_size)
+            resized_image.save(file_path)
+        except Exception as e:
+            print(f"Erro ao salvar a imagem: {e}")
+            
