@@ -7,8 +7,8 @@ from actions.load_image import load_dataset, load_image
 from actions.crop_roi import crop_roi
 from actions.show_histogram import show_histogram
 from actions.compute_glcm import compute_glcm, show_glcm_heatmap
+from RoiApp import RoiApp
 from tkinter import messagebox
-
 class ImageApp:
     def __init__(self, root):
         self.root = root
@@ -23,6 +23,7 @@ class ImageApp:
         self.current_image_pil = None
         self.roi_coords = None
         self.rect = None
+        self.roi_app = None
 
         # Comboboxes para selecionar paciente e imagem
         self.paciente_var = tk.StringVar()
@@ -79,35 +80,39 @@ class ImageApp:
     def start_crop_roi(self):
         """Inicia o processo de recorte da ROI."""
         self.canvas.bind("<ButtonPress-1>", self.on_button_press)
-        self.canvas.bind("<B1-Motion>", self.on_mouse_drag)
-        self.canvas.bind("<ButtonRelease-1>", self.on_button_release)
 
     def on_button_press(self, event):
-        """Quando o botão do mouse é pressionado, iniciar o retângulo de ROI."""
-        self.roi_coords = [(event.x, event.y)]
+        """Quando o botão do mouse é pressionado, desenhar um quadrado fixo de 28x28 com o mouse no centro."""
+        # Coordenadas do centro (onde o mouse foi clicado)
+        center_x, center_y = event.x, event.y
+
+        # Calcular os cantos do quadrado 28x28
+        x1 = center_x - 14
+        y1 = center_y - 14
+        x2 = center_x + 14
+        y2 = center_y + 14
+        self.roi_coords = [(x1, y1), (x2, y2)]
+
+        # Desenhar o quadrado no canvas
         if self.rect:
             self.canvas.delete(self.rect)
-        self.rect = None
-
-    def on_mouse_drag(self, event):
-        """Durante o arrasto do mouse, atualizar o retângulo de ROI."""
-        if len(self.roi_coords) == 1:
-            self.canvas.delete(self.rect)
-            self.rect = self.canvas.create_rectangle(self.roi_coords[0][0], self.roi_coords[0][1], event.x, event.y, outline="red")
-
-    def on_button_release(self, event):
-        """Quando o botão do mouse é liberado, finalizar o recorte da ROI."""
-        self.roi_coords.append((event.x, event.y))
+        self.rect = self.canvas.create_rectangle(x1, y1, x2, y2, outline="red")
+        # Recortar e exibir a ROI automaticamente
         self.crop_and_show_roi()
-
+        
     def crop_and_show_roi(self):
         """Recortar a ROI e exibi-la."""
         x1, y1 = self.roi_coords[0]
         x2, y2 = self.roi_coords[1]
-
-        roi = crop_roi(self.current_image_pil, x1, y1, x2, y2)
-        self.current_image_pil = roi
-        self.display_image(roi)
+        
+        canvas_width = self.canvas.winfo_width()
+        canvas_height = self.canvas.winfo_height()
+        
+        roi = crop_roi(self.current_image_pil, x1, y1, x2, y2, canvas_width, canvas_height)
+        new_window = tk.Toplevel(self.root)
+        if(self.roi_app):
+            self.roi_app.root.destroy()
+        self.roi_app = RoiApp(new_window,roi)
 
     def show_histogram(self):
         """Exibir o histograma da imagem ou ROI atual."""
