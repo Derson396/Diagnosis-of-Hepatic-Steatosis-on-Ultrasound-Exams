@@ -10,6 +10,7 @@ from actions.show_histogram import show_histogram
 from actions.compute_glcm import compute_glcm, show_glcm_heatmap
 from RoiApp import RoiApp
 from tkinter import messagebox
+from actions.csv_handler import write_roi_data_to_csv
 
 
 class ImageApp:
@@ -261,6 +262,21 @@ class ImageApp:
         )
 
         output_path, hi = process_rois(roiRim, roiFigado, f"Rois/ROI_{self.paciente}_{self.image_idx}.png")
+
+        # Determinar a classe (0-16 saudável, 17+ com esteatose)
+        classe = 0 if self.paciente <= 16 else 1  # Pacientes 0 a 16 são saudáveis, restante com esteatose
+        
+        # Preparar os dados para escrita
+        roi_data = [
+            f"ROI_{self.paciente}_{self.image_idx}.png",
+            classe,
+            f"{x1_F},{y1_F}",  # Canto superior esquerdo do fígado
+            f"{x1_R},{y1_R}",  # Canto superior esquerdo do rim
+            hi
+        ]
+
+        # Salvar os dados no CSV
+        write_roi_data_to_csv('Rois/Planilhas/roi_data.csv', roi_data)
             # Mostrar mensagem com o HI e abrir a imagem normalizada do fígado
         messagebox.showinfo(
                 "Índice Hepatorenal Calculado",
