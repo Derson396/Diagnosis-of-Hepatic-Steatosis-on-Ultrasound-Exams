@@ -210,7 +210,7 @@ class ImageApp:
         self.canvas.bind("<ButtonPress-1>", self.on_button_press_two_rois)
         
         # Atualizar o status para informar que o primeiro ROI é do RIM
-        self.selection_status_label.config(text="Selecione a região do RIM.")
+        self.selection_status_label.config(text="Selecione a região do rim.")
         self.selection_status_label.grid()
 
     def on_button_press_two_rois(self, event):
@@ -226,19 +226,17 @@ class ImageApp:
             y2 = center_y + 14
             if self.roi_count == 0:
                 self.roiRim_coords = [(x1, y1), (x2, y2)]
-
+                self.selection_status_label.config(text="Agora selecione a região do fígado.")
+            elif self.roi_count == 1:
+                self.roiFigado_coords = [(x1, y1), (x2, y2)]
+            
             # Desenhar o quadrado no canvas
             rect = self.canvas.create_rectangle(x1, y1, x2, y2, outline="green")
             self.rects.append(rect)
 
-            # Incrementar o contador de ROIs e atualizar status
             self.roi_count += 1
 
-            if self.roi_count == 1:
-                # Após a primeira seleção (RIM), pedir a segunda (FÍGADO)
-                self.selection_status_label.config(text="Agora selecione a região do FÍGADO.")
-                self.roiFigado_coords = [(x1, y1), (x2, y2)]
-            elif self.roi_count == 2:
+            if self.roi_count == 2:
                 # Quando as duas ROIs forem selecionadas, chamar o processamento
                 self.selection_status_label.config(text="Processando as ROIs...")
                 self.process_two_rois()
