@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import filedialog, ttk
 from PIL import ImageTk, Image
 import numpy as np
+from actions.calculate_texture_features import calculate_texture_features
 from actions.generate_roi import process_rois
 from actions.load_image import load_dataset, load_image
 from actions.crop_roi import crop_roi
@@ -10,7 +11,7 @@ from actions.show_histogram import show_histogram
 from actions.compute_glcm import compute_glcm, show_glcm_heatmap
 from RoiApp import RoiApp
 from tkinter import messagebox
-from actions.csv_handler import write_roi_data_to_csv
+from actions.csv_handler import write_roi_data_to_csv, write_texture_features_to_csv
 
 
 class ImageApp:
@@ -277,7 +278,24 @@ class ImageApp:
 
         # Salvar os dados no CSV
         write_roi_data_to_csv('Rois/Planilhas/roi_data.csv', roi_data)
-            # Mostrar mensagem com o HI e abrir a imagem normalizada do fígado
+
+                # Calcular características de textura para o fígado
+        texture_features = calculate_texture_features(roiFigado)
+        
+        # Preparar os dados para escrita das características de textura
+        texture_data = [
+            f"ROI_{self.paciente}_{self.image_idx}.png",  # Nome do arquivo
+            classe,
+            texture_features['Coarseness'],
+            texture_features['Contrast'],
+            texture_features['Periodicity'],
+            texture_features['Roughness']
+        ]
+
+        # Escrever as características de textura no CSV
+        write_texture_features_to_csv('Rois/Planilhas/texture_data.csv', texture_data)
+    
+        # Mostrar mensagem com o HI e abrir a imagem normalizada do fígado
         messagebox.showinfo(
                 "Índice Hepatorenal Calculado",
                 f"Índice Hepatorenal (HI): {hi:.2f}\nImagem do fígado normalizada salva em: {output_path}"
