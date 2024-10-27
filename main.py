@@ -8,7 +8,7 @@ from actions.generate_roi import process_rois
 from actions.load_image import load_dataset, load_image
 from actions.crop_roi import crop_roi
 from actions.show_histogram import show_histogram
-from actions.compute_glcm import compute_glcm, show_glcm_heatmap
+from actions.compute_glcm import compute_glcm, show_glcm_heatmap, show_features
 from RoiApp import RoiApp
 from tkinter import messagebox
 from actions.csv_handler import write_roi_data_to_csv, write_texture_features_to_csv
@@ -194,8 +194,7 @@ class ImageApp:
                 show_glcm_heatmap(glcm)
 
                 # Exibe os descritores
-                features_str = "\n".join([f"{k}: {v}" for k, v in features.items()])
-                messagebox.showinfo("Descritores de Textura (GLCM)", features_str)
+                show_features(features)
 
             except ValueError as e:
                 messagebox.showerror("Erro", str(e))

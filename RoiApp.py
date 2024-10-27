@@ -4,7 +4,7 @@ from tkinter import ttk
 import numpy as np
 from PIL import ImageTk
 from actions.show_histogram import show_histogram
-from actions.compute_glcm import compute_glcm, show_glcm_heatmap
+from actions.compute_glcm import compute_glcm, show_glcm_heatmap,show_features
 from tkinter import messagebox
 
 class RoiApp:
@@ -57,8 +57,7 @@ class RoiApp:
                 show_glcm_heatmap(glcm)
 
                 # Exibe os descritores
-                features_str = "\n".join([f"{k}: {v}" for k, v in features.items()])
-                messagebox.showinfo("Descritores de Textura (GLCM)", features_str)
+                show_features(features)
 
             except ValueError as e:
                 messagebox.showerror("Erro", str(e))
