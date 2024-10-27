@@ -20,8 +20,8 @@ class ImageApp:
         self.root.title("Visualizador de Imagens")
         self.images = load_dataset()
 
-        self.zoom_level = 1  # Inicialize o nível de zoom em 1 (tamanho normal)
-        self.pan_x, self.pan_y = 0, 0  # Posição inicial do pan
+        self.zoom_level = 1
+        self.pan_x, self.pan_y = 0, 0
 
         # Configurar a interface
         self.canvas = tk.Canvas(root, width=600, height=600, bg="gray")
@@ -101,10 +101,10 @@ class ImageApp:
         self.selection_status_label.grid_remove()  # Esconder inicialmente
 
         # Botões de zoom
-        btn_zoom_in = ttk.Button(root, text="+", command=self.zoom_in)
+        btn_zoom_in = ttk.Button(root, text="Zoom +", command=self.zoom_in)
         btn_zoom_in.grid(row=1, column=2)
 
-        btn_zoom_out = ttk.Button(root, text="-", command=self.zoom_out)
+        btn_zoom_out = ttk.Button(root, text="Zoom -", command=self.zoom_out)
         btn_zoom_out.grid(row=1, column=3)
 
         # Eventos de pan
@@ -129,7 +129,7 @@ class ImageApp:
                 Image.LANCZOS
             )
             self.tk_image = ImageTk.PhotoImage(zoomed_image)
-            self.canvas.delete("all")  # Limpe o canvas antes de desenhar a nova imagem
+            self.canvas.delete("all")
             self.canvas.create_image(self.pan_x, self.pan_y, anchor=tk.NW, image=self.tk_image)
 
     def start_pan(self, event):
