@@ -117,9 +117,74 @@ class RoiApp:
             messagebox.showerror("Erro", "Nenhuma ROI carregada para calcular GLCM.")
 
     def save_kidney(self):
-        # Código para salvar a ROI como Rim
-        pass
+        try:
+            pacient_int = int(self.pacient_var)  # Converte para inteiro para comparação
+            image_int = int(self.image_var)  # Converte para inteiro, se necessário
+
+            # Cria o diretório se não existir
+            save_directory = "Rois/Figado"
+            os.makedirs(
+                save_directory, exist_ok=True
+            )  # Cria o diretório se não existir
+
+            if self.paciente != None:
+                classe = 0 if self.paciente <= 16 else 1  # Pacientes 0 a 16 são saudáveis, restante com esteatose
+            else:
+                classe = input('Preencha a classe (0 para saudavel 1 para doente):')
+
+            # Define o caminho do arquivo
+            if self.pacient_var == None or self.image_var == None:
+                pacient_int = input("Escreva o numero do paciente :")
+                image_int = input("Escreva qual é a imagem do paciente : ")
+
+            # Define o caminho do arquivo
+            if classe == 0:
+                file_path = os.path.join(
+                    save_directory, f"SaudavelPacient{pacient_int}Imagem{image_int}.png"
+                )
+            else:
+                file_path = os.path.join(
+                    save_directory, f"DoentePacient{pacient_int}Imagem{image_int}.png"
+                )
+
+            # Salva a imagem
+            new_size = (600, 600)  # Define o novo tamanho
+            resized_image = self.current_image_pil.resize(new_size)
+            resized_image.save(file_path)
+        except Exception as e:
+            print(f"Erro ao salvar a imagem: {e}")
 
     def save_liver(self):
-        # Código para salvar a ROI como Fígado
-        pass
+        try:
+            print
+            pacient_int = int(self.pacient_var)  # Converte para inteiro para comparação
+            image_int = int(self.image_var)  # Converte para inteiro, se necessário
+
+            # Cria o diretório se não existir
+            save_directory = "Rois/Rim"
+            os.makedirs(
+                save_directory, exist_ok=True
+            )  # Cria o diretório se não existir
+
+            # Define o caminho do arquivo
+            if self.pacient_var == None or self.image_var == None:
+                pacient_int = input("Escreva o numero do paciente :")
+                image_int = input("Escreva qual é a imagem do paciente : ")
+
+            if 0 < pacient_int < 17:
+                file_path = os.path.join(
+                    save_directory, f"SaudavelPacient{pacient_int}Imagem{image_int}.png"
+                )
+            else:
+                file_path = os.path.join(
+                    save_directory, f"DoentePacient{pacient_int}Imagem{image_int}.png"
+                )
+
+            # Salva a imagem
+            new_size = (600, 600)  # Define o novo tamanho
+            resized_image = self.current_image_pil.resize(new_size)
+            resized_image.save(file_path)
+        except Exception as e:
+            print(f"Erro ao salvar a imagem: {e}")
+
+
