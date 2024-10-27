@@ -8,7 +8,7 @@ from actions.generate_roi import process_rois
 from actions.load_image import load_dataset, load_image
 from actions.crop_roi import crop_roi
 from actions.show_histogram import show_histogram
-from actions.compute_glcm import compute_glcm, show_glcm_heatmap
+from actions.compute_glcm import compute_glcm, show_glcm_heatmap, show_features
 from RoiApp import RoiApp
 from tkinter import messagebox
 from actions.csv_handler import write_roi_data_to_csv, write_texture_features_to_csv
@@ -105,6 +105,9 @@ class ImageApp:
         if file_path:
             self.current_image_pil = Image.open(file_path)
             self.display_image(self.current_image_pil)
+        self.paciente = None
+        self.image_idx = None
+        
 
     def load_image(self):
         """Carrega a imagem selecionada com base no paciente e índice de imagem."""
@@ -194,8 +197,7 @@ class ImageApp:
                 show_glcm_heatmap(glcm)
 
                 # Exibe os descritores
-                features_str = "\n".join([f"{k}: {v}" for k, v in features.items()])
-                messagebox.showinfo("Descritores de Textura (GLCM)", features_str)
+                show_features(features)
 
             except ValueError as e:
                 messagebox.showerror("Erro", str(e))
@@ -262,10 +264,13 @@ class ImageApp:
             self.current_image_pil, x1_F, y1_F, x2_F, y2_F, canvas_width, canvas_height
         )
 
-        output_path, hi = process_rois(roiRim, roiFigado, f"Rois/ROI_{self.paciente}_{self.image_idx}.png")
+        output_path, hi,figado_normalizado = process_rois(roiRim, roiFigado, f"Rois/ROI_{self.paciente}_{self.image_idx}.png")
 
         # Determinar a classe (0-16 saudável, 17+ com esteatose)
-        classe = 0 if self.paciente <= 16 else 1  # Pacientes 0 a 16 são saudáveis, restante com esteatose
+        if self.paciente!=None:
+            classe = 0 if self.paciente <= 16 else 1  # Pacientes 0 a 16 são saudáveis, restante com esteatose
+        else:
+            classe = input('Preencha a classe (0 para saudavel 1 para doente):')
         
         # Preparar os dados para escrita
         roi_data = [
@@ -276,11 +281,17 @@ class ImageApp:
             hi
         ]
 
+        self.save_kidney(roiFigado)
+        self.save_liver(roiRim)
+        
         # Salvar os dados no CSV
         write_roi_data_to_csv('Rois/Planilhas/roi_data.csv', roi_data)
 
                 # Calcular características de textura para o fígado
-        texture_features = calculate_texture_features(roiFigado)
+        texture_features = calculate_texture_features(figado_normalizado)
+        glcm_radial,features_glcm = compute_glcm(np.array(
+                    figado_normalizado.convert("L")
+                ))
         
         # Preparar os dados para escrita das características de textura
         texture_data = [
@@ -289,7 +300,39 @@ class ImageApp:
             texture_features['Coarseness'],
             texture_features['Contrast'],
             texture_features['Periodicity'],
-            texture_features['Roughness']
+            texture_features['Roughness'],
+            
+            features_glcm['contrast'][0][0], #[distancia = 1]
+            features_glcm['dissimilarity'][0][0],
+            features_glcm['homogeneity'][0][0],
+            features_glcm['energy'][0][0],
+            features_glcm['correlation'][0][0],
+            features_glcm['ASM'][0][0],
+            features_glcm['entropy'][0][0],
+            
+            features_glcm['contrast'][0][1], #[distancia = 2]
+            features_glcm['dissimilarity'][0][1],
+            features_glcm['homogeneity'][0][1],
+            features_glcm['energy'][0][1],
+            features_glcm['correlation'][0][1],
+            features_glcm['ASM'][0][1],
+            features_glcm['entropy'][0][1],
+            
+            features_glcm['contrast'][0][2], #[distancia = 4]
+            features_glcm['dissimilarity'][0][2],
+            features_glcm['homogeneity'][0][2],
+            features_glcm['energy'][0][2],
+            features_glcm['correlation'][0][2],
+            features_glcm['ASM'][0][2],
+            features_glcm['entropy'][0][2],
+            
+            features_glcm['contrast'][0][3], #[distancia = 8]
+            features_glcm['dissimilarity'][0][3],
+            features_glcm['homogeneity'][0][3],
+            features_glcm['energy'][0][3],
+            features_glcm['correlation'][0][3],
+            features_glcm['ASM'][0][3],
+            features_glcm['entropy'][0][3],
         ]
 
         # Escrever as características de textura no CSV
@@ -315,6 +358,77 @@ class ImageApp:
         for rect in self.rects:
             self.canvas.delete(rect)
 
+    def save_kidney(self,image):
+        try:
+            pacient_int = int(self.paciente)  # Converte para inteiro para comparação
+            image_int = int(self.image_idx)  # Converte para inteiro, se necessário
+
+            # Cria o diretório se não existir
+            save_directory = "Rois/Figado"
+            os.makedirs(
+                save_directory, exist_ok=True
+            )  # Cria o diretório se não existir
+
+            if self.paciente!=None:
+                classe = 0 if self.paciente <= 16 else 1  # Pacientes 0 a 16 são saudáveis, restante com esteatose
+            else:
+                classe = input('Preencha a classe (0 para saudavel 1 para doente):')
+            
+            # Define o caminho do arquivo
+            if self.paciente == None or self.image_idx == None:
+                pacient_int = input("Escreva o numero do paciente :")
+                image_int = input("Escreva qual é a imagem do paciente : ")
+            
+            
+            # Define o caminho do arquivo
+            if classe==0:
+                file_path = os.path.join(
+                    save_directory, f"SaudavelPacient{pacient_int}Imagem{image_int}.png"
+                )
+            else:
+                file_path = os.path.join(
+                    save_directory, f"DoentePacient{pacient_int}Imagem{image_int}.png"
+                )
+
+            # Salva a imagem
+            new_size = (600, 600)  # Define o novo tamanho
+            resized_image = image.resize(new_size)
+            resized_image.save(file_path)
+        except Exception as e:
+            print(f"Erro ao salvar a imagem: {e}")
+
+    def save_liver(self,image):
+        try:
+            print
+            pacient_int = int(self.paciente)  # Converte para inteiro para comparação
+            image_int = int(self.image_idx)  # Converte para inteiro, se necessário
+
+            # Cria o diretório se não existir
+            save_directory = "Rois/Rim"
+            os.makedirs(
+                save_directory, exist_ok=True
+            )  # Cria o diretório se não existir
+
+            # Define o caminho do arquivo
+            if self.paciente == None or self.image_idx == None:
+                pacient_int = input("Escreva o numero do paciente :")
+                image_int = input("Escreva qual é a imagem do paciente : ")
+
+            if 0 < pacient_int < 17:
+                file_path = os.path.join(
+                    save_directory, f"SaudavelPacient{pacient_int}Imagem{image_int}.png"
+                )
+            else:
+                file_path = os.path.join(
+                    save_directory, f"DoentePacient{pacient_int}Imagem{image_int}.png"
+                )
+
+            # Salva a imagem
+            new_size = (600, 600)  # Define o novo tamanho
+            resized_image = image.resize(new_size)
+            resized_image.save(file_path)
+        except Exception as e:
+            print(f"Erro ao salvar a imagem: {e}")
 
 # Iniciar a aplicação
 root = tk.Tk()

@@ -35,10 +35,6 @@ def calculate_texture_features(image):
     # Usar diferença de pixels adjacentes
     roughness = np.mean(np.abs(img[:-1, :-1] - img[1:, :-1])) + \
                 np.mean(np.abs(img[:-1, :-1] - img[:-1, 1:]))
-    print('Coarseness: ' + str(coarseness) +
-      ', Contrast: ' + str(contrast) +
-      ', Periodicity: ' + str(periodicity) +
-      ', Roughness: ' + str(roughness))
     return {
         'Coarseness': coarseness,
         'Contrast': contrast,

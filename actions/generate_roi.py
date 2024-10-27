@@ -34,9 +34,10 @@ def process_rois(roi_rim, roi_figado, output_path):
 
     # Criar a nova imagem normalizada
     figado_normalizado = Image.fromarray(figado_normalizado_array.astype(np.uint8))
-
+    new_size = (600, 600)
+    figado_normalizado = figado_normalizado.resize(new_size)
     # Salvar a imagem normalizada
     figado_normalizado.save(output_path)
 
     # Retornar o caminho da nova ROI do fígado normalizada e o HI
-    return output_path, hi
+    return output_path, hi, figado_normalizado
