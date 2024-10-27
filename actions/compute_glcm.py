@@ -3,7 +3,10 @@ import numpy as np
 from skimage.feature import graycomatrix, graycoprops  
 from tkinter import messagebox
 
-def compute_glcm(image, distances=[1,2,4,8], angles=[0, np.pi/4, np.pi/2, 3*np.pi/4], levels=256):
+def get_angles(start=0,end=360,step=1):
+    return np.arange(start, end, step)
+
+def compute_glcm(image, distances=[1,2,4,8], angles=get_angles(), levels=256):
     """
     Calcula a matriz de co-ocorrência (GLCM) e os descritores de textura.
 
@@ -50,27 +53,13 @@ def show_features(features,properties = ['contrast', 'dissimilarity', 'homogenei
             features_str += f"\n {prop.capitalize()} : {values[i]}"
         messagebox.showinfo("Descritores de Textura (GLCM)", features_str)
 
-def save_glcm_to_file(glcm, filepath="glcm_matrix.txt"):
-    """Salva a matriz GLCM em um arquivo .txt."""
-    with open(filepath, 'w') as f:
-        for i in range(glcm.shape[2]):
-            f.write(f"GLCM (Slice {i+1}):\n")
-            np.savetxt(f, glcm[:, :, i, 0], fmt='%f')
-            f.write("\n")
-
-def show_glcm_heatmap(radial_glcms):
-    """
-    Exibe o heatmap da matriz de co-ocorrência (GLCM).
-
-    Parameters:
-    - glcm: A matriz GLCM a ser exibida (espera uma matriz 4D).
-    """
+def show_glcm_heatmap(radial_glcms,distances=[1,2,4,8]):
     num_matrices = radial_glcms.shape[2]  # Número de matrizes de GLCM
 
     # Para cada matriz, exibir o heatmap
     for i in range(num_matrices):
         plt.figure(figsize=(6, 6))
         plt.imshow(radial_glcms[:, :, i], cmap='hot', interpolation='nearest')  # Ajustado para 3D
-        plt.title(f"Heatmap da GLCM - Matriz {i+1}")
+        plt.title(f"Heatmap da GLCM (Distancia {distances[i]})")
         plt.colorbar(label='Intensidade')
         plt.show()
