@@ -20,6 +20,9 @@ class ImageApp:
         self.root.title("Visualizador de Imagens")
         self.images = load_dataset()
 
+        self.zoom_level = 1  # Inicialize o nível de zoom em 1 (tamanho normal)
+        self.pan_x, self.pan_y = 0, 0  # Posição inicial do pan
+
         # Configurar a interface
         self.canvas = tk.Canvas(root, width=600, height=600, bg="gray")
         self.canvas.grid(row=0, column=0, columnspan=4)
@@ -96,6 +99,47 @@ class ImageApp:
         self.selection_status_label = tk.Label(root, font=("Arial", 12))
         self.selection_status_label.grid(row=3, column=0, columnspan=4, pady=10)
         self.selection_status_label.grid_remove()  # Esconder inicialmente
+
+        # Botões de zoom
+        btn_zoom_in = ttk.Button(root, text="+", command=self.zoom_in)
+        btn_zoom_in.grid(row=1, column=2)
+
+        btn_zoom_out = ttk.Button(root, text="-", command=self.zoom_out)
+        btn_zoom_out.grid(row=1, column=3)
+
+        # Eventos de pan
+        self.canvas.bind("<ButtonPress-1>", self.start_pan)
+        self.canvas.bind("<B1-Motion>", self.do_pan)
+
+    def zoom_in(self):
+        if self.zoom_level < 4:
+            self.zoom_level += 1
+            self.update_display()
+
+    def zoom_out(self):
+        if self.zoom_level > 1:
+            self.zoom_level -= 1
+            self.update_display()
+
+    def update_display(self):
+        if self.current_image_pil:
+            zoomed_image = self.current_image_pil.resize(
+                (self.current_image_pil.width * self.zoom_level,
+                 self.current_image_pil.height * self.zoom_level),
+                Image.LANCZOS
+            )
+            self.tk_image = ImageTk.PhotoImage(zoomed_image)
+            self.canvas.delete("all")  # Limpe o canvas antes de desenhar a nova imagem
+            self.canvas.create_image(self.pan_x, self.pan_y, anchor=tk.NW, image=self.tk_image)
+
+    def start_pan(self, event):
+        self.pan_start_x = event.x - self.pan_x
+        self.pan_start_y = event.y - self.pan_y
+
+    def do_pan(self, event):
+        self.pan_x = event.x - self.pan_start_x
+        self.pan_y = event.y - self.pan_start_y
+        self.update_display()
 
     def load_imagem_arquivo(self):
         file_path = filedialog.askopenfilename(
