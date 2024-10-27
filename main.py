@@ -24,7 +24,7 @@ class ImageApp:
         self.pan_x, self.pan_y = 0, 0
 
         # Configurar a interface
-        self.canvas = tk.Canvas(root, width=600, height=600, bg="gray")
+        self.canvas = tk.Canvas(root, bg="gray")
         self.canvas.grid(row=0, column=0, columnspan=4)
 
         # Variáveis para armazenar a imagem atual e a ROI
@@ -122,23 +122,42 @@ class ImageApp:
             self.update_display()
 
     def update_display(self):
+        """Atualiza a exibição da imagem no canvas, levando em conta zoom e pan."""
         if self.current_image_pil:
+            # Redimensiona a imagem com base no nível de zoom
             zoomed_image = self.current_image_pil.resize(
-                (self.current_image_pil.width * self.zoom_level,
-                 self.current_image_pil.height * self.zoom_level),
+                (int(self.current_image_pil.width * self.zoom_level),
+                 int(self.current_image_pil.height * self.zoom_level)),
                 Image.LANCZOS
             )
             self.tk_image = ImageTk.PhotoImage(zoomed_image)
+
+            # Limpa o canvas e desenha a imagem com as coordenadas de pan
             self.canvas.delete("all")
             self.canvas.create_image(self.pan_x, self.pan_y, anchor=tk.NW, image=self.tk_image)
+            self.canvas.image = self.tk_image  # Mantém referência da imagem
 
     def start_pan(self, event):
-        self.pan_start_x = event.x - self.pan_x
-        self.pan_start_y = event.y - self.pan_y
+        """Inicia o pan da imagem."""
+        # Registra a posição inicial do pan
+        self.pan_start_x = event.x
+        self.pan_start_y = event.y
 
     def do_pan(self, event):
-        self.pan_x = event.x - self.pan_start_x
-        self.pan_y = event.y - self.pan_start_y
+        """Realiza o pan da imagem."""
+        # Calcula a diferença de movimento
+        dx = event.x - self.pan_start_x
+        dy = event.y - self.pan_start_y
+
+        # Atualiza as coordenadas de pan com base no movimento
+        self.pan_x += dx
+        self.pan_y += dy
+
+        # Atualiza a posição inicial do pan para a nova posição do evento
+        self.pan_start_x = event.x
+        self.pan_start_y = event.y
+
+        # Atualiza a exibição com as novas coordenadas de pan
         self.update_display()
 
     def load_imagem_arquivo(self):
@@ -151,7 +170,6 @@ class ImageApp:
             self.display_image(self.current_image_pil)
         self.paciente = None
         self.image_idx = None
-        
 
     def load_image(self):
         """Carrega a imagem selecionada com base no paciente e índice de imagem."""
@@ -164,17 +182,27 @@ class ImageApp:
 
         # Carregar a imagem
         try:
-            self.current_image_pil = load_image(
-                self.images, self.paciente, self.image_idx
-            )
+            self.current_image_pil = load_image(self.images, self.paciente, self.image_idx)
             self.display_image(self.current_image_pil)
         except ValueError as e:
             print(e)
 
-    def display_image(self, image_pil):
-        """Exibe a imagem no canvas."""
-        self.tk_image = ImageTk.PhotoImage(image=image_pil.resize((600, 600)))
-        self.canvas.create_image(0, 0, anchor=tk.NW, image=self.tk_image)
+    def display_image(self, image):
+        """Exibe a imagem no canvas e ajusta o tamanho do canvas para a imagem."""
+        # Converte a imagem PIL para um objeto PhotoImage do Tkinter
+        self.current_image_tk = ImageTk.PhotoImage(image)
+
+        # Atualiza as dimensões do canvas para corresponder à imagem
+        self.canvas.config(width=image.width, height=image.height)
+
+        # Limpa o canvas antes de desenhar a nova imagem
+        self.canvas.delete("all")
+
+        # Exibe a imagem no canvas
+        self.canvas.create_image(0, 0, anchor='nw', image=self.current_image_tk)
+
+        # Mantém uma referência para evitar que a imagem seja coletada pelo garbage collector
+        self.canvas.image = self.current_image_tk
 
     def start_crop_roi(self):
         """Inicia o processo de recorte da ROI."""
@@ -204,16 +232,34 @@ class ImageApp:
         self.crop_and_show_roi()
 
     def crop_and_show_roi(self):
-        """Recortar a ROI e exibi-la."""
+        """Recortar a ROI e exibi-la, levando em consideração zoom e pan."""
         x1, y1 = self.roi_coords[0]
         x2, y2 = self.roi_coords[1]
 
+        # Obtendo as dimensões do canvas
         canvas_width = self.canvas.winfo_width()
         canvas_height = self.canvas.winfo_height()
 
+        # Obtendo o nível de zoom e a posição de pan
+        zoom_level = self.zoom_level  # Supondo que você tenha um atributo que guarda o nível de zoom
+        pan_x = self.pan_x  # Supondo que você tenha um atributo que guarda o deslocamento horizontal
+        pan_y = self.pan_y  # Supondo que você tenha um atributo que guarda o deslocamento vertical
+
+        # Calculando o fator de escala baseado no nível de zoom
+        scale = zoom_level  # Ajuste esse valor se seu fator de zoom não for diretamente o zoom_level
+
+        # Convertendo as coordenadas da ROI para a imagem original
+        orig_x1 = (x1 - pan_x) / scale
+        orig_y1 = (y1 - pan_y) / scale
+        orig_x2 = (x2 - pan_x) / scale
+        orig_y2 = (y2 - pan_y) / scale
+
+        # Recortando a ROI da imagem original
         roi = crop_roi(
-            self.current_image_pil, x1, y1, x2, y2, canvas_width, canvas_height
+            self.current_image_pil, orig_x1, orig_y1, orig_x2, orig_y2, canvas_width, canvas_height
         )
+
+        # Exibindo a ROI em uma nova janela
         new_window = tk.Toplevel(self.root)
         if self.roi_app:
             self.roi_app.root.destroy()
