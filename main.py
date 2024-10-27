@@ -105,6 +105,9 @@ class ImageApp:
         if file_path:
             self.current_image_pil = Image.open(file_path)
             self.display_image(self.current_image_pil)
+        self.paciente = None
+        self.image_idx = None
+        
 
     def load_image(self):
         """Carrega a imagem selecionada com base no paciente e índice de imagem."""
@@ -261,10 +264,13 @@ class ImageApp:
             self.current_image_pil, x1_F, y1_F, x2_F, y2_F, canvas_width, canvas_height
         )
 
-        output_path, hi = process_rois(roiRim, roiFigado, f"Rois/ROI_{self.paciente}_{self.image_idx}.png")
+        output_path, hi,figado_normalizado = process_rois(roiRim, roiFigado, f"Rois/ROI_{self.paciente}_{self.image_idx}.png")
 
         # Determinar a classe (0-16 saudável, 17+ com esteatose)
-        classe = 0 if self.paciente <= 16 else 1  # Pacientes 0 a 16 são saudáveis, restante com esteatose
+        if self.paciente!=None:
+            classe = 0 if self.paciente <= 16 else 1  # Pacientes 0 a 16 são saudáveis, restante com esteatose
+        else:
+            classe = input('Preencha a classe (0 para saudavel 1 para doente):')
         
         # Preparar os dados para escrita
         roi_data = [
@@ -279,7 +285,10 @@ class ImageApp:
         write_roi_data_to_csv('Rois/Planilhas/roi_data.csv', roi_data)
 
                 # Calcular características de textura para o fígado
-        texture_features = calculate_texture_features(roiFigado)
+        texture_features = calculate_texture_features(figado_normalizado)
+        glcm_radial,features_glcm = compute_glcm(np.array(
+                    figado_normalizado.convert("L")
+                ))
         
         # Preparar os dados para escrita das características de textura
         texture_data = [
@@ -288,7 +297,39 @@ class ImageApp:
             texture_features['Coarseness'],
             texture_features['Contrast'],
             texture_features['Periodicity'],
-            texture_features['Roughness']
+            texture_features['Roughness'],
+            
+            features_glcm['contrast'][0][0], #[distancia = 1]
+            features_glcm['dissimilarity'][0][0],
+            features_glcm['homogeneity'][0][0],
+            features_glcm['energy'][0][0],
+            features_glcm['correlation'][0][0],
+            features_glcm['ASM'][0][0],
+            features_glcm['entropy'][0][0],
+            
+            features_glcm['contrast'][0][1], #[distancia = 2]
+            features_glcm['dissimilarity'][0][1],
+            features_glcm['homogeneity'][0][1],
+            features_glcm['energy'][0][1],
+            features_glcm['correlation'][0][1],
+            features_glcm['ASM'][0][1],
+            features_glcm['entropy'][0][1],
+            
+            features_glcm['contrast'][0][2], #[distancia = 4]
+            features_glcm['dissimilarity'][0][2],
+            features_glcm['homogeneity'][0][2],
+            features_glcm['energy'][0][2],
+            features_glcm['correlation'][0][2],
+            features_glcm['ASM'][0][2],
+            features_glcm['entropy'][0][2],
+            
+            features_glcm['contrast'][0][3], #[distancia = 8]
+            features_glcm['dissimilarity'][0][3],
+            features_glcm['homogeneity'][0][3],
+            features_glcm['energy'][0][3],
+            features_glcm['correlation'][0][3],
+            features_glcm['ASM'][0][3],
+            features_glcm['entropy'][0][3],
         ]
 
         # Escrever as características de textura no CSV

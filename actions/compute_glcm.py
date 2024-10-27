@@ -6,6 +6,12 @@ from tkinter import messagebox
 def get_angles(start=0,end=360,step=1):
     return np.arange(start, end, step)
 
+def calcular_entropia(glcm):
+    """Calcula a entropia a partir da matriz de co-ocorrência."""
+    glcm_normalizada = glcm / np.sum(glcm)
+    entropia = -np.sum(glcm_normalizada * np.log2(glcm_normalizada + (glcm_normalizada == 0)))
+    return entropia
+
 def compute_glcm(image, distances=[1,2,4,8], angles=get_angles(), levels=256):
     """
     Calcula a matriz de co-ocorrência (GLCM) e os descritores de textura.
@@ -39,13 +45,20 @@ def extract_features_from_glcm(radial_glcms):
     properties = ['contrast', 'dissimilarity', 'homogeneity', 'energy', 'correlation', 'ASM']
     radial_glcms_4d = np.expand_dims(radial_glcms, axis=-1)
     features = {prop: [] for prop in properties}
+    features['entropy']= []
+    entropia =[]
     for prop in properties:
         prop_value = graycoprops(radial_glcms_4d, prop).flatten()
         features[prop].append(prop_value)
+        
+    for i in range(4):
+        entropia.append(calcular_entropia(radial_glcms[:,:,i]))
+    features['entropy'].append(entropia)
+    
     return features
 
 
-def show_features(features,properties = ['contrast', 'dissimilarity', 'homogeneity', 'energy', 'correlation', 'ASM'],distances=[1,2,4,8]):
+def show_features(features,properties = ['contrast', 'dissimilarity', 'homogeneity', 'energy', 'correlation', 'ASM','entropy'],distances=[1,2,4,8]):
     for i, distance in enumerate(distances):
         features_str=f'\n (Distância {distance}):'
         for prop in properties:
