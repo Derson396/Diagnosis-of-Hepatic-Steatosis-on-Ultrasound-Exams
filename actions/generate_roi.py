@@ -1,6 +1,7 @@
 import numpy as np
 from PIL import Image
 import os
+from actions.csv_handler import ensure_directory_exists
 
 def process_rois(roi_rim, roi_figado, output_path):
     """Processa as duas ROIs (rim e fígado), calcula o HI e normaliza a ROI do fígado.
@@ -36,6 +37,7 @@ def process_rois(roi_rim, roi_figado, output_path):
     figado_normalizado = Image.fromarray(figado_normalizado_array.astype(np.uint8))
     new_size = (600, 600)
     figado_normalizado = figado_normalizado.resize(new_size)
+    ensure_directory_exists(os.path.dirname(output_path))
     # Salvar a imagem normalizada
     figado_normalizado.save(output_path)
 
