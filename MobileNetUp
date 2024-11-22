@@ -1,0 +1,146 @@
+import os
+import itertools
+import pandas as pd
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.applications import MobileNet
+from tensorflow.keras.applications.mobilenet import preprocess_input
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Dropout, BatchNormalization
+from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping
+from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+import seaborn as sns
+import time
+
+
+# ====================
+# 1. CARREGAMENTO E PREPROCESSAMENTO DOS DADOS
+# ====================
+def load_data(csv_path, image_dir, input_size):
+    data = pd.read_csv(csv_path)
+    data["Paciente"] = data["Arquivo"].str.extract(r"ROI_(\d+)_\d+", expand=False).astype(int)
+    return data
+
+
+def load_and_preprocess_image(file_path, target_size, image_dir):
+    file_path = os.path.join(image_dir, file_path)
+    image = tf.io.read_file(file_path)
+    image = tf.image.decode_png(image, channels=3)
+    image = tf.image.resize(image, target_size)
+    return preprocess_input(image)
+
+
+# ====================
+# 2. DEFINIÇÃO DO MODELO COM FINE-TUNING
+# ====================
+def create_mobilenet_model(input_shape, num_classes, dropout):
+    base_model = MobileNet(weights="imagenet", include_top=False, input_shape=input_shape)
+    x = GlobalAveragePooling2D()(base_model.output)
+    x = Dense(256, activation="relu")(x)
+    x = BatchNormalization()(x)
+    x = Dropout(dropout)(x)
+    x = Dense(128, activation="relu")(x)
+    x = Dropout(dropout)(x)
+    output = Dense(num_classes, activation="softmax")(x)
+    model = Model(inputs=base_model.input, outputs=output)
+
+    # Congelar as primeiras camadas
+    for layer in base_model.layers[:80]:
+        layer.trainable = False
+
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(),
+        loss="sparse_categorical_crossentropy",
+        metrics=["accuracy"]
+    )
+    return model
+
+
+# ====================
+# 3. TREINAMENTO E AVALIAÇÃO
+# ====================
+def train_and_evaluate(data, image_dir, input_size, learning_rate, dropout, epochs, batch_size):
+    accuracies = []
+    conf_matrices = []
+    class_weights = {0: 3.24, 1: 1.45}
+
+    pacientes = data["Paciente"].unique()
+    for test_patient_id in pacientes:
+        train_data = data[data["Paciente"] != test_patient_id]
+        test_data = data[data["Paciente"] == test_patient_id]
+
+        x_train = np.array([load_and_preprocess_image(f, input_size, image_dir) for f in train_data["Arquivo"]])
+        y_train = train_data["Classe"].values
+        x_test = np.array([load_and_preprocess_image(f, input_size, image_dir) for f in test_data["Arquivo"]])
+        y_test = test_data["Classe"].values
+
+        model = create_mobilenet_model(input_shape=(*input_size, 3), num_classes=2, dropout=dropout)
+
+        history = model.fit(
+            x_train, y_train,
+            validation_data=(x_test, y_test),
+            epochs=epochs, batch_size=batch_size,
+            verbose=0, class_weight=class_weights,
+            callbacks=[
+                ReduceLROnPlateau(monitor="val_loss", factor=0.5, patience=5, min_lr=1e-6),
+                EarlyStopping(monitor="val_loss", patience=20, restore_best_weights=True)
+            ]
+        )
+
+        preds = model.predict(x_test, verbose=0)
+        y_pred = np.argmax(preds, axis=1)
+        accuracies.append(accuracy_score(y_test, y_pred))
+        conf_matrices.append(confusion_matrix(y_test, y_pred))
+
+    return np.mean(accuracies), conf_matrices
+
+
+# ====================
+# 4. GRID SEARCH APRIMORADO
+# ====================
+def grid_search(csv_path, image_dir):
+    # Defina os hiperparâmetros
+    learning_rates = [1e-9,1e-7,1e-5,1e-4, 1e-3]
+    dropouts = [0.3, 0.5, 0.7]
+    input_sizes = [(32, 32)]
+    batch_sizes = [32, 64]
+    epochs = 40
+
+    best_accuracy = 0
+    best_params = {}
+
+    data = load_data(csv_path, image_dir, input_sizes[0])
+
+    for lr, dropout, input_size, batch_size in itertools.product(learning_rates, dropouts, input_sizes, batch_sizes):
+        print(f"\nTestando: LR={lr}, Dropout={dropout}, Input Size={input_size}, Batch Size={batch_size}")
+
+        start_time = time.time()
+        accuracy, conf_matrices = train_and_evaluate(
+            data=data,
+            image_dir=image_dir,
+            input_size=input_size,
+            learning_rate=lr,
+            dropout=dropout,
+            epochs=epochs,
+            batch_size=batch_size
+        )
+
+        if accuracy > best_accuracy:
+            best_accuracy = accuracy
+            best_params = {"learning_rate": lr, "dropout": dropout, "input_size": input_size, "batch_size": batch_size}
+
+        print(f"Acurácia: {accuracy:.4f}, Tempo: {time.time() - start_time:.2f} segundos")
+
+    print(f"\nMelhor Acurácia: {best_accuracy:.4f}")
+    print(f"Melhores Hiperparâmetros: {best_params}")
+
+
+# ====================
+# EXECUÇÃO
+# ====================
+if __name__ == "__main__":
+    csv_path = "roi_data.csv"
+    image_dir = "Rois/Normalizadas/"
+    grid_search(csv_path, image_dir)
