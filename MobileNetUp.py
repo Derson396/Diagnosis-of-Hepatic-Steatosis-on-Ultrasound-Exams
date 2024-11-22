@@ -102,25 +102,34 @@ def train_and_evaluate(input_size, learning_rate, convolucao, dropout, batch_siz
         conf_matrices.append(confusion_matrix(y_test, y_pred))
 
     return np.mean(accuracies), np.std(accuracies), conf_matrices
-
-
+import random
+def generate_random_seeds(size=9, seed_range=(0, 2**32 - 1)):
+    return [random.randint(seed_range[0], seed_range[1]) for _ in range(size)]
 # ====================
 # 4. GRID SEARCH PARA HIPERPARÂMETROS
 # ====================
-def grid_search():
-    learning_rates = [1e-3, 1e-4, 1e-5]
-    batch_sizes = [16, 32]
-    epochs_list = [40, 60]
-    input_sizes_and_convolucao = {(32, 32): (32, 32, 3), (64, 64): (64, 64, 3)}
-    dropout_rates = [0.3, 0.5, 0.7]
+def save_best_params_to_file(file_path, params, accuracy):
+    # Formatar os parâmetros e a acurácia para salvar no arquivo
+    result_line = f"Accuracy: {accuracy:.4f}, Params: {params}\n"
+    with open(file_path, "a") as file:
+        file.write(result_line)
 
+def grid_search():
+    learning_rates = [1e-3, 1e-4, 1e-5,1e-6,1e-7,1e-8]
+    batch_sizes = [55]
+    epochs_list = [40, 60]
+    input_sizes_and_convolucao = {(32, 32): (32, 32, 3)}
+    dropout_rates = [0.3, 0.5, 0.7,0]
     best_accuracy = 0
     best_params = {}
-
-    for lr, batch_size, epochs, (input_size, convolucao), dropout in itertools.product(
-        learning_rates, batch_sizes, epochs_list, input_sizes_and_convolucao.items(), dropout_rates
+    seed_vector = generate_random_seeds()
+    path_result = "melhores.txt"
+    for lr, batch_size, epochs, (input_size, convolucao), dropout,seed in itertools.product(
+        learning_rates, batch_sizes, epochs_list, input_sizes_and_convolucao.items(), dropout_rates,seed_vector
     ):
-        print(f"Testando: LR={lr}, Batch size={batch_size}, Epochs={epochs}, Input size={input_size}, Dropout={dropout}")
+        np.random.seed(seed)
+        tf.random.set_seed(seed)
+        print(f"Testando: LR={lr}, Batch size={batch_size}, Epochs={epochs}, Input size={input_size}, Dropout={dropout}, seed={seed}")
         start_time = time.time()
 
         mean_accuracy, std_accuracy, conf_matrices = train_and_evaluate(
@@ -129,16 +138,19 @@ def grid_search():
 
         elapsed_time = time.time() - start_time
         print(f"Resultado: Acurácia Média={mean_accuracy:.4f}, Desvio Padrão={std_accuracy:.4f}, Tempo={elapsed_time:.2f}s")
-
-        if mean_accuracy > best_accuracy:
-            best_accuracy = mean_accuracy
-            best_params = {
-                "learning_rate": lr,
+        params = {
+            "learning_rate": lr,
                 "batch_size": batch_size,
                 "epochs": epochs,
                 "input_size": input_size,
                 "dropout": dropout,
-            }
+                "seed":seed,
+        }
+        if mean_accuracy > best_accuracy:
+            best_accuracy = mean_accuracy
+            best_params = params
+        if mean_accuracy>0.88:
+            save_best_params_to_file(path_result,params,mean_accuracy)
 
     print("\nMelhor Configuração:")
     print(f"Acurácia: {best_accuracy:.4f}")
