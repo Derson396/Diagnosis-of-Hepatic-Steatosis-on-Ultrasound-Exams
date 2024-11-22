@@ -138,8 +138,8 @@ def mobileNet(
         plt.show()"""
 
     # Resultados finais
-    # print(f"Acurácia média: {np.mean(accuracies):.4f}")
-    # print(f"Desvio padrão: {np.std(accuracies):.4f}")
+    print(f"Acurácia média: {np.mean(accuracies):.4f}")
+    print(f"Desvio padrão: {np.std(accuracies):.4f}")
     return accuracies
 
 
@@ -197,9 +197,9 @@ def tune_hyperparameters():
     }"""
     input_sizes_and_convolucao = {
         (128, 128): (128, 128, 3),
-        (160, 160): (160, 160, 3),
-        (192, 192): (192, 192, 3),
-        (224, 224): (224, 224, 3),
+        #(160, 160): (160, 160, 3),
+        #(192, 192): (192, 192, 3),
+        #(224, 224): (224, 224, 3),
     }
     dropout = [0, 0.1, 0.2, 0.5, 0.7, 0.8]
 
