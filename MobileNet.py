@@ -187,7 +187,7 @@ import itertools
 def tune_hyperparameters():
     # Defina os hiperparâmetros para testar
     learning_rates = [1e-4, 1e-3, 1e-2, 1e-7, 1e-8]
-    batch_sizes = [16, 32, 20]
+    batch_sizes = [55]
     epochs_list = [20, 40, 60, 80, 100]
     # Mapeamento de tamanhos de entrada para formas específicas (altura, largura, canais)
     """input_sizes_and_convolucao = {
@@ -196,7 +196,8 @@ def tune_hyperparameters():
         (224, 224): (224, 224, 3), 
     }"""
     input_sizes_and_convolucao = {
-        (128, 128): (128, 128, 3),
+        (32,32):(32,32,3)
+        #(128, 128): (128, 128, 3),
         #(160, 160): (160, 160, 3),
         #(192, 192): (192, 192, 3),
         #(224, 224): (224, 224, 3),
