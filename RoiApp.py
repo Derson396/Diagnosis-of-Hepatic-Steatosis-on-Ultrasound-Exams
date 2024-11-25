@@ -53,9 +53,13 @@ class RoiApp:
         self.canvas.bind("<ButtonPress-1>", self.start_pan)
         self.canvas.bind("<B1-Motion>", self.do_pan)
 
+        self.zoom_out()
+        self.zoom_out()
+
     def calculate_initial_zoom(self):
         canvas_width, canvas_height = 600, 600
         img_width, img_height = self.current_image_pil.size
+        print(self.current_image_pil.size)
         zoom_w = canvas_width / img_width
         zoom_h = canvas_height / img_height
         return min(zoom_w, zoom_h)
@@ -77,6 +81,7 @@ class RoiApp:
         self.update_display()
 
     def update_display(self):
+        print(self.zoom_level)
         if self.current_image_pil:
             # Redimensiona a imagem com o nível de zoom atual
             zoomed_image = self.current_image_pil.resize(
@@ -92,12 +97,26 @@ class RoiApp:
             self.canvas.create_image(img_x, img_y, anchor=tk.NW, image=self.tk_image)
 
     def start_pan(self, event):
-        self.pan_start_x = event.x - self.pan_x
-        self.pan_start_y = event.y - self.pan_y
+        """Inicia o pan da imagem."""
+        # Registra a posição inicial do pan
+        self.pan_start_x = event.x
+        self.pan_start_y = event.y
 
     def do_pan(self, event):
-        self.pan_x = event.x - self.pan_start_x
-        self.pan_y = event.y - self.pan_start_y
+        """Realiza o pan da imagem."""
+        # Calcula a diferença de movimento
+        dx = event.x - self.pan_start_x
+        dy = event.y - self.pan_start_y
+
+        # Atualiza as coordenadas de pan com base no movimento
+        self.pan_x += dx
+        self.pan_y += dy
+
+        # Atualiza a posição inicial do pan para a nova posição do evento
+        self.pan_start_x = event.x
+        self.pan_start_y = event.y
+
+        # Atualiza a exibição com as novas coordenadas de pan
         self.update_display()
 
     def show_histogram(self):
