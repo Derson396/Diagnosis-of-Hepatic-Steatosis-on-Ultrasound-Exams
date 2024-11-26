@@ -1,0 +1,264 @@
+Model model_1, Fold 1
+Train Accuracy: 0.3111, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_1.txt
+
+Model model_1, Fold 2
+Train Accuracy: 0.2963, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_2.txt
+
+Model model_1, Fold 3
+Train Accuracy: 0.3759, Test Accuracy: 0.9000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_3.txt
+
+Model model_1, Fold 4
+Train Accuracy: 0.2963, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_4.txt
+
+Model model_1, Fold 5
+Train Accuracy: 0.2963, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_5.txt
+
+Model model_1, Fold 6
+Train Accuracy: 0.2963, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_6.txt
+
+Model model_1, Fold 7
+Train Accuracy: 0.2963, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_7.txt
+
+Model model_1, Fold 8
+Train Accuracy: 0.5278, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_8.txt
+
+Model model_1, Fold 9
+Train Accuracy: 0.3259, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_9.txt
+
+Model model_1, Fold 10
+Train Accuracy: 0.2963, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_10.txt
+
+Model model_1, Fold 11
+Train Accuracy: 0.3630, Test Accuracy: 0.9000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_11.txt
+
+Model model_1, Fold 1
+Train Accuracy: 0.3167, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_1.txt
+
+Model model_1, Fold 2
+Train Accuracy: 0.2963, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_2.txt
+
+Model model_1, Fold 3
+Train Accuracy: 0.2963, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_3.txt
+
+Model model_1, Fold 4
+Train Accuracy: 0.2963, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_4.txt
+
+Model model_1, Fold 5
+Train Accuracy: 0.2963, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_5.txt
+
+Model model_1, Fold 6
+Train Accuracy: 0.2963, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_6.txt
+
+Model model_1, Fold 7
+Train Accuracy: 0.2963, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_7.txt
+
+Model model_1, Fold 8
+Train Accuracy: 0.4926, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_8.txt
+
+Model model_1, Fold 9
+Train Accuracy: 0.3611, Test Accuracy: 0.9000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_9.txt
+
+Model model_1, Fold 10
+Train Accuracy: 0.2963, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_10.txt
+
+Model model_1, Fold 11
+Train Accuracy: 0.3481, Test Accuracy: 0.9000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_11.txt
+
+Model model_1, Fold 12
+Train Accuracy: 0.2963, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_12.txt
+
+Model model_1, Fold 13
+Train Accuracy: 0.6185, Test Accuracy: 0.5000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_13.txt
+
+Model model_1, Fold 14
+Train Accuracy: 0.7019, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_14.txt
+
+Model model_1, Fold 15
+Train Accuracy: 0.6833, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_15.txt
+
+Model model_1, Fold 16
+Train Accuracy: 0.5648, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_16.txt
+
+Model model_1, Fold 17
+Train Accuracy: 0.6759, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_17.txt
+
+Model model_1, Fold 18
+Train Accuracy: 0.5370, Test Accuracy: 0.9000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_18.txt
+
+Model model_1, Fold 19
+Train Accuracy: 0.3148, Test Accuracy: 0.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_19.txt
+
+Model model_1, Fold 20
+Train Accuracy: 0.6926, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_20.txt
+
+Model model_1, Fold 21
+Train Accuracy: 0.5185, Test Accuracy: 0.2000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_21.txt
+
+Model model_1, Fold 22
+Train Accuracy: 0.3148, Test Accuracy: 0.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_22.txt
+
+Model model_1, Fold 23
+Train Accuracy: 0.5389, Test Accuracy: 0.9000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_23.txt
+
+Model model_1, Fold 24
+Train Accuracy: 0.4685, Test Accuracy: 0.8000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_24.txt
+
+Model model_1, Fold 25
+Train Accuracy: 0.5204, Test Accuracy: 0.6000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_25.txt
+
+Model model_1, Fold 26
+Train Accuracy: 0.6148, Test Accuracy: 0.6000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_26.txt
+
+Model model_1, Fold 27
+Train Accuracy: 0.3148, Test Accuracy: 0.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_27.txt
+
+Model model_1, Fold 28
+Train Accuracy: 0.6852, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_28.txt
+
+Model model_1, Fold 29
+Train Accuracy: 0.6944, Test Accuracy: 0.8000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_29.txt
+
+Model model_1, Fold 30
+Train Accuracy: 0.5907, Test Accuracy: 0.7000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_30.txt
+
+Model model_1, Fold 31
+Train Accuracy: 0.6796, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_31.txt
+
+Model model_1, Fold 32
+Train Accuracy: 0.4093, Test Accuracy: 0.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_32.txt
+
+Model model_1, Fold 33
+Train Accuracy: 0.6981, Test Accuracy: 0.9000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_33.txt
+
+Model model_1, Fold 34
+Train Accuracy: 0.6444, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_34.txt
+
+Model model_1, Fold 35
+Train Accuracy: 0.6833, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_35.txt
+
+Model model_1, Fold 36
+Train Accuracy: 0.5611, Test Accuracy: 0.7000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_36.txt
+
+Model model_1, Fold 37
+Train Accuracy: 0.7019, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_37.txt
+
+Model model_1, Fold 38
+Train Accuracy: 0.6833, Test Accuracy: 0.9000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_38.txt
+
+Model model_1, Fold 39
+Train Accuracy: 0.7056, Test Accuracy: 0.8000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_39.txt
+
+Model model_1, Fold 40
+Train Accuracy: 0.7056, Test Accuracy: 0.9000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_40.txt
+
+Model model_1, Fold 41
+Train Accuracy: 0.7056, Test Accuracy: 0.8000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_41.txt
+
+Model model_1, Fold 42
+Train Accuracy: 0.6796, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_42.txt
+
+Model model_1, Fold 43
+Train Accuracy: 0.5370, Test Accuracy: 0.6000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_43.txt
+
+Model model_1, Fold 44
+Train Accuracy: 0.3907, Test Accuracy: 0.2000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_44.txt
+
+Model model_1, Fold 45
+Train Accuracy: 0.6815, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_45.txt
+
+Model model_1, Fold 46
+Train Accuracy: 0.6278, Test Accuracy: 0.9000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_46.txt
+
+Model model_1, Fold 47
+Train Accuracy: 0.5352, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_47.txt
+
+Model model_1, Fold 48
+Train Accuracy: 0.5926, Test Accuracy: 0.7000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_48.txt
+
+Model model_1, Fold 49
+Train Accuracy: 0.6259, Test Accuracy: 0.5000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_49.txt
+
+Model model_1, Fold 50
+Train Accuracy: 0.3815, Test Accuracy: 0.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_50.txt
+
+Model model_1, Fold 51
+Train Accuracy: 0.2963, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_51.txt
+
+Model model_1, Fold 52
+Train Accuracy: 0.2963, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_52.txt
+
+Model model_1, Fold 53
+Train Accuracy: 0.3444, Test Accuracy: 0.9000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_53.txt
+
+Model model_1, Fold 54
+Train Accuracy: 0.3019, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_54.txt
+
+Model model_1, Fold 55
+Train Accuracy: 0.2963, Test Accuracy: 1.0000
+Confusion Matrix saved to confusion_matrices/conf_matrix_model_1_fold_55.txt
+
