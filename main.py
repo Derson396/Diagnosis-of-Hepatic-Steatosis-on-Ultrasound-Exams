@@ -12,6 +12,7 @@ from actions.compute_glcm import compute_glcm, show_glcm_heatmap, show_features
 from RoiApp import RoiApp
 from tkinter import messagebox
 from actions.csv_handler import write_roi_data_to_csv, write_texture_features_to_csv
+from actions.patient_labels import class_for_patient
 
 
 class ImageApp:
@@ -358,7 +359,7 @@ class ImageApp:
 
         # Determinar a classe (0-16 saudável, 17+ com esteatose)
         if self.paciente!=None:
-            classe = 0 if self.paciente <= 16 else 1  # Pacientes 0 a 16 são saudáveis, restante com esteatose
+            classe = class_for_patient(self.paciente)
         else:
             classe = input('Preencha a classe (0 para saudavel 1 para doente):')
         
@@ -460,7 +461,7 @@ class ImageApp:
             )  # Cria o diretório se não existir
 
             if self.paciente!=None:
-                classe = 0 if self.paciente <= 16 else 1  # Pacientes 0 a 16 são saudáveis, restante com esteatose
+                classe = class_for_patient(self.paciente)
             else:
                 classe = input('Preencha a classe (0 para saudavel 1 para doente):')
             
@@ -504,7 +505,7 @@ class ImageApp:
                 pacient_int = input("Escreva o numero do paciente :")
                 image_int = input("Escreva qual é a imagem do paciente : ")
 
-            if 0 < pacient_int < 17:
+            if class_for_patient(pacient_int) == 0:
                 file_path = os.path.join(
                     save_directory, f"SaudavelPacient{pacient_int}Imagem{image_int}.png"
                 )

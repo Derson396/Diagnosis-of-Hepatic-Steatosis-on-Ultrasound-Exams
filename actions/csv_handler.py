@@ -1,48 +1,58 @@
-import os
 import csv
+import os
+import tempfile
+
+
+ROI_HEADER = ["Arquivo", "Classe", "Canto Superior Esquerdo Fígado", "Canto Superior Esquerdo Rim", "HI"]
+TEXTURE_HEADER = ["Arquivo", "Classe", "Coarseness", "Contrast", "Periodicity", "Roughness"] + [
+    f"glcm_distance_{distance}_{feature}"
+    for distance in (1, 2, 4, 8)
+    for feature in ("contrast", "dissimilarity", "homogeneity", "energy", "correlation", "ASM", "entropy")
+]
+
 
 def ensure_directory_exists(directory):
-    """Cria o diretório se ele não existir."""
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+    if directory:
+        os.makedirs(directory, exist_ok=True)
+
 
 def write_roi_data_to_csv(file_path, data):
-    """Escreve os dados das ROIs no arquivo CSV."""
-    # Verificar se o diretório existe e criá-lo se necessário
-    ensure_directory_exists(os.path.dirname(file_path))
+    _upsert_csv_row(file_path, data, ROI_HEADER)
 
-    # Verificar se o arquivo CSV já existe
-    file_exists = os.path.isfile(file_path)
-
-    with open(file_path, mode='a', newline='') as file:
-        writer = csv.writer(file)
-
-        # Se o arquivo não existe, escrever o cabeçalho
-        if not file_exists:
-            writer.writerow(['Arquivo', 'Classe', 'Canto Superior Esquerdo Fígado', 'Canto Superior Esquerdo Rim', 'HI'])
-
-        # Escrever os dados
-        writer.writerow(data)
 
 def write_texture_features_to_csv(file_path, features):
-    """Escreve as características de textura no arquivo CSV."""
-    # Verificar se o diretório existe e criá-lo se necessário
-    ensure_directory_exists(os.path.dirname(file_path))
+    _upsert_csv_row(file_path, features, TEXTURE_HEADER)
 
-    # Verificar se o arquivo CSV já existe
-    file_exists = os.path.isfile(file_path)
 
-    with open(file_path, mode='a', newline='') as file:
-        writer = csv.writer(file)
+def _upsert_csv_row(file_path, data, default_header):
+    if len(data) != len(default_header):
+        raise ValueError(f"Esperadas {len(default_header)} colunas; recebidas {len(data)}.")
 
-        # Se o arquivo não existe, escrever o cabeçalho
-        if not file_exists:
-            writer.writerow(['Arquivo', 'Classe', 'Coarseness', 'Contrast', 'Periodicity', 'Roughness',
-                             'glcm_distance_1_contrast','glcm_distance_1_dissimilarity','glcm_distance_1_homogeneity','glcm_distance_1_energy','glcm_distance_1_correlation','glcm_distance_1_ASM','glcm_distance_1_entropy',
-                             'glcm_distance_2_contrast','glcm_distance_2_dissimilarity','glcm_distance_2_homogeneity','glcm_distance_2_energy','glcm_distance_2_correlation','glcm_distance_2_ASM','glcm_distance_2_entropy',
-                             'glcm_distance_4_contrast','glcm_distance_4_dissimilarity','glcm_distance_4_homogeneity','glcm_distance_4_energy','glcm_distance_4_correlation','glcm_distance_4_ASM','glcm_distance_4_entropy',
-                             'glcm_distance_8_contrast','glcm_distance_8_dissimilarity','glcm_distance_8_homogeneity','glcm_distance_8_energy','glcm_distance_8_correlation','glcm_distance_8_ASM','glcm_distance_8_entropy',
-                             ])
+    directory = os.path.dirname(os.fspath(file_path)) or "."
+    ensure_directory_exists(directory)
+    rows = {}
+    header = default_header
+    if os.path.isfile(file_path):
+        with open(file_path, newline="", encoding="utf-8-sig") as source:
+            reader = csv.reader(source)
+            header = next(reader, default_header)
+            for row in reader:
+                if row:
+                    rows[row[0]] = row
 
-        # Escrever os dados das características de textura
-        writer.writerow(features)
+    if len(header) != len(data):
+        raise ValueError("O CSV existente tem um número de colunas diferente.")
+    rows[data[0]] = data
+
+    temp_path = None
+    try:
+        with tempfile.NamedTemporaryFile("w", newline="", encoding="utf-8", dir=directory, delete=False) as target:
+            temp_path = target.name
+            writer = csv.writer(target)
+            writer.writerow(header)
+            writer.writerows(rows.values())
+        os.replace(temp_path, file_path)
+    except Exception:
+        if temp_path and os.path.exists(temp_path):
+            os.remove(temp_path)
+        raise

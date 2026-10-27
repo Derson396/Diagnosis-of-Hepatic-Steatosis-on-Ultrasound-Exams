@@ -3,6 +3,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 import numpy as np
 from actions.show_histogram import show_histogram
+from actions.patient_labels import class_for_patient
 from actions.compute_glcm import compute_glcm, show_glcm_heatmap, show_features
 from tkinter import messagebox
 import os
@@ -147,7 +148,7 @@ class RoiApp:
             )  # Cria o diretório se não existir
 
             if self.paciente != None:
-                classe = 0 if self.paciente <= 16 else 1  # Pacientes 0 a 16 são saudáveis, restante com esteatose
+                classe = class_for_patient(self.paciente)
             else:
                 classe = input('Preencha a classe (0 para saudavel 1 para doente):')
 
@@ -190,7 +191,7 @@ class RoiApp:
                 pacient_int = input("Escreva o numero do paciente :")
                 image_int = input("Escreva qual é a imagem do paciente : ")
 
-            if 0 < pacient_int < 17:
+            if class_for_patient(pacient_int) == 0:
                 file_path = os.path.join(
                     save_directory, f"SaudavelPacient{pacient_int}Imagem{image_int}.png"
                 )

@@ -8,6 +8,7 @@ import time
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from sklearn.utils import class_weight
+from actions.cross_validation import split_patient_validation
 
 import warnings
 warnings.filterwarnings("ignore")  # Ignora todos os warnings
@@ -129,26 +130,13 @@ def train_and_evaluate(
 
     train_epoch_accuracies = []
     test_epoch_accuracies = []
-    model = create_mobilenet_model(
-        num_classes=2,
-        learning_rate=learning_rate,
-        convolucao=convolucao,
-        dropout=dropout,
-    )
-    accuracy_history = AccuracyHistory()
-    callbacks = [
-        tf.keras.callbacks.ReduceLROnPlateau(
-            monitor="val_loss", factor=0.5, patience=5, min_lr=1e-6
-        ),
-        tf.keras.callbacks.EarlyStopping(
-            monitor="val_loss", patience=10, restore_best_weights=True
-        ),
-        accuracy_history,
-    ]
     for fold, test_patient_id in enumerate(pacientes, 1):
         print(f"\nFold {fold}/{len(pacientes)}")  # Pode ser removido para evitar prints
         test_data = data[data["Paciente"] == test_patient_id]
         train_data = data[data["Paciente"] != test_patient_id]
+        fit_patients, validation_patients = split_patient_validation(train_data["Paciente"])
+        validation_data = train_data[train_data["Paciente"].isin(validation_patients)]
+        train_data = train_data[train_data["Paciente"].isin(fit_patients)]
 
         x_train = np.array(
             [
@@ -157,6 +145,10 @@ def train_and_evaluate(
             ]
         )
         y_train = train_data["Classe"].values
+        x_validation = np.array(
+            [load_and_preprocess_image(f, input_size, image_dir) for f in validation_data["Arquivo"]]
+        )
+        y_validation = validation_data["Classe"].values
         x_test = np.array(
             [
                 load_and_preprocess_image(f, input_size, image_dir)
@@ -165,18 +157,36 @@ def train_and_evaluate(
         )
         y_test = test_data["Classe"].values
 
+        model = create_mobilenet_model(
+            num_classes=2,
+            learning_rate=learning_rate,
+            convolucao=convolucao,
+            dropout=dropout,
+        )
+        accuracy_history = AccuracyHistory()
+        callbacks = [
+            tf.keras.callbacks.ReduceLROnPlateau(
+                monitor="val_loss", factor=0.5, patience=5, min_lr=1e-6
+            ),
+            tf.keras.callbacks.EarlyStopping(
+                monitor="val_loss", patience=10, restore_best_weights=True
+            ),
+            accuracy_history,
+        ]
+
         # Cálculo dinâmico do class_weight
+        classes = np.unique(y_train)
         class_weights = class_weight.compute_class_weight(
             class_weight="balanced",
-            classes=np.unique(y_train),
+            classes=classes,
             y=y_train,
         )
-        class_weights = dict(enumerate(class_weights))
+        class_weights = dict(zip(classes, class_weights))
 
         model.fit(
             x_train,
             y_train,
-            validation_data=(x_test, y_test),
+            validation_data=(x_validation, y_validation),
             epochs=epochs,
             batch_size=batch_size,
             verbose=0,  # Evita mensagens de treinamento
@@ -385,5 +395,5 @@ def load_confusion_matrices(file_path="confusion_matrices.txt"):
     return matrices
 
 
-# Executar o Grid Search
-grid_search()
+if __name__ == "__main__":
+    grid_search()

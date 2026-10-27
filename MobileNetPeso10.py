@@ -12,6 +12,7 @@ from sklearn.metrics import confusion_matrix, accuracy_score
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import KFold
+from actions.cross_validation import split_patient_validation
 import time
 
 def mobileNet(
@@ -62,6 +63,9 @@ def mobileNet(
         # Separar os dados de treino e teste baseando-se no paciente
         test_data = data[data["Paciente"] == test_patient_id]
         train_data = data[data["Paciente"] != test_patient_id]
+        fit_patients, validation_patients = split_patient_validation(train_data["Paciente"])
+        validation_data = train_data[train_data["Paciente"].isin(validation_patients)]
+        train_data = train_data[train_data["Paciente"].isin(fit_patients)]
 
         # Pré-processamento dos dados
         x_train = np.array(
@@ -71,6 +75,10 @@ def mobileNet(
             ]
         )
         y_train = train_data["Classe"].values
+        x_validation = np.array(
+            [load_and_preprocess_image(f, input_size, image_dir) for f in validation_data["Arquivo"]]
+        )
+        y_validation = validation_data["Classe"].values
         x_test = np.array(
             [
                 load_and_preprocess_image(f, input_size, image_dir)
@@ -89,7 +97,7 @@ def mobileNet(
         history = model.fit(
             x_train,
             y_train,
-            validation_data=(x_test, y_test),
+            validation_data=(x_validation, y_validation),
             epochs=epochs,
             batch_size=batch_size,
             verbose=0,

@@ -1,3 +1,27 @@
+# Python environments and caches
+.venv/
+venv/
 __pycache__/
-/.venv
-/.idea
+*.py[cod]
+
+# IDE and operating system files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+.aws/
+.env
+.env.*
+
+# Locally generated ROIs, tables, and model checkpoints
+Rois/Normalizadas/
+Rois/Figado/
+Rois/Rim/
+Rois/Planilhas/*.csv
+Rois/ROI_*.png
+*.h5
+MobileNet_SavedModel/
+**/melhores.txt
+**/confusion_matrices.txt
+results.txt
+best_model_details.txt
